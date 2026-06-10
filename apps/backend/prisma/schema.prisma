@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String           @id @default(uuid())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  recipes   Recipe[]
+  sessions  CookingSession[]
+}
+
+model Recipe {
+  id        String           @id @default(uuid())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  title     String
+  rawText   String
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  steps     RecipeStep[]
+  sessions  CookingSession[]
+
+  @@index([userId]) // Индекс для быстрого поиска рецептов конкретного юзера
+}
+
+model RecipeStep {
+  id          String   @id @default(uuid())
+  order       Int
+  instruction String
+  durationSec Int?
+  audioPath   String?   // Путь к пред-сгенерированному TTS файлу на сервере
+  audioCached Boolean  @default(false)
+  recipeId    String
+  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, order]) // Гарантирует уникальный порядок шагов и создает авто-индекс
+}
+
+model CookingSession {
+  id           String   @id @default(uuid())
+  startedAt    DateTime @default(now())
+  lastActiveAt DateTime @updatedAt
+  currentStep  Int      @default(0)
+  isComplete   Boolean  @default(false)
+  recipeId     String
+  recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade) // Починили каскад при удалении рецепта
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@index([userId]) // Индекс для истории готовок пользователя
+}

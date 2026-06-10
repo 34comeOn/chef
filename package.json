@@ -1,0 +1,30 @@
+{
+  "name": "chef",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev:backend": "pnpm --filter @chef/backend dev",
+    "dev:mobile": "pnpm --filter @chef/mobile dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean",
+    "db:generate": "pnpm --filter @chef/backend db:generate",
+    "db:migrate": "pnpm --filter @chef/backend db:migrate",
+    "db:studio": "pnpm --filter @chef/backend db:studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.5.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "prisma"
+    ]
+  }
+}

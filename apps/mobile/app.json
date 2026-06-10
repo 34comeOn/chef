@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Chef",
+    "slug": "chef",
+    "scheme": "chef",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.chef.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.chef.app"
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow Chef to listen for voice commands while cooking.",
+          "enableBackgroundPlayback": true,
+          "enableBackgroundRecording": true
+        }
+      ]
+    ]
+  }
+}

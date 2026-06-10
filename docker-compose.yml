@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chef
+      POSTGRES_PASSWORD: chef_dev_password
+      POSTGRES_DB: chef_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chef -d chef_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # веб-админка
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080" # Будет доступна в браузере по адресу http://localhost:8080
+
+volumes:
+  postgres_data:
+
+# Ollama runs natively on the dev machine (uses Apple Metal GPU).
+# Start with: ollama serve
+# Pull model: ollama pull llama3.1
+# OLLAMA_BASE_URL=http://localhost:11434 (default in backend .env.example)
