@@ -1,23 +1,25 @@
-# Dependencies
+# Monorepo Orchestration & Caching
+.turbo/
 node_modules/
 .pnpm-store/
+*.tsbuildinfo
 
 # Build outputs
 dist/
 build/
 .expo/
-*.tsbuildinfo
+out/
 
-# Environment files
+# Environment secrets (CRITICAL)
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
 
-# OS
+# OS & IDEs
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 
@@ -25,17 +27,21 @@ Thumbs.db
 *.log
 npm-debug.log*
 pnpm-debug.log*
+turbo-debug.log*
 
-# Prisma
-apps/backend/prisma/migrations/
-
-# Expo
+# Expo specific
 apps/mobile/.expo/
 apps/mobile/expo-env.d.ts
+apps/mobile/ios/
+apps/mobile/android/
 
-# TTS audio cache
-apps/backend/audio/
+# TTS audio cache (server-side media storage)
+apps/backend/audio/*
+!apps/backend/audio/.gitkeep
 
-# Database
+# Local SQLite databases (if any)
 *.db
 *.sqlite
+
+# NOTE: apps/backend/prisma/migrations/ MUST BE TRACKED BY GIT. 
+# Do not add it here.

@@ -15,6 +15,7 @@
     "db:migrate": "pnpm --filter @chef/backend db:migrate",
     "db:studio": "pnpm --filter @chef/backend db:studio"
   },
+  "packageManager": "pnpm@10.34.1",
   "devDependencies": {
     "turbo": "^2.3.0",
     "typescript": "^5.5.0"

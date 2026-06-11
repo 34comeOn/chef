@@ -173,3 +173,38 @@ pnpm dev:mobile               # expo start
 ## **Core Language Pipeline**
 - For heavy recipe parsing (`raw text -> JSON`), the backend pipelines text through English internally to maximize Ollama's JSON consistency and output quality.
 - The structural fields in `RecipeStep` (instruction) are translated back to the User's target language before generating TTS audio and storing to the Database. Ad-hoc kitchen chat requests bypass this pipeline and answer directly in the User's language for sub-second latency.
+
+## Culinary Domain Engine & JSON Schema
+
+### AI Parsing Pipeline
+The LLM is instructed to parse raw recipe text into `AIParsedRecipeSchema`. This rich structure is stored verbatim in `Recipe.parsedData` (Prisma `Json?`) for fast full retrieval, while the flattened scalar fields are also written to `RecipeStep` and `RecipeIngredient` rows for indexed SQL queries.
+
+### Schema Vocabulary
+
+| Schema | Purpose |
+|---|---|
+| `AIParsedRecipeSchema` | Full LLM output — stored in `Recipe.parsedData`. Language defaults to `'en'` (Ollama parses in English, backend localizes before writing step rows). |
+| `AIParsedRecipeStepSchema` | One cooking step as the LLM sees it: `stepNumber`, `instructionText`, nested `subTasks`, `possibleTimers`, `environment`. |
+| `AISubTaskSchema` | Micro-action within a step. `activityType` encodes cooking phase: `preparation` (chopping, measuring), `active_cooking` (stirring, frying), `passive_waiting` (marinating, proofing). |
+| `AIParsedTimerSchema` | A named countdown — `label` (e.g. "simmer sauce") + `durationSeconds`. A step can have multiple independent timers. |
+| `EnvironmentalParametersSchema` | Physical conditions: `temperatureCelsius` (nullable), `heatLevel` enum (`low`/`medium`/`high`/`none`), `equipmentNeeded` string array. |
+| `AIParsedIngredientSchema` | Ingredient as extracted by LLM: `name`, `quantity` (free-text, nullable), `unit` (nullable). Stored in `RecipeIngredient` rows. |
+
+### DB-Side Mapping
+- `RecipeStep.stepNumber` — renamed from `order`; `@@unique([recipeId, stepNumber])` index preserved.
+- `RecipeStep.instructionText` — renamed from `instruction`.
+- `RecipeStep.timerDurationSeconds` — primary/fallback timer scalar for TTS pacing; full multi-timer list lives in `parsedData`.
+- `Recipe.parsedData Json?` — stores the complete `AIParsedRecipeSchema` object; never re-parsed after initial write.
+- `RecipeIngredient` — new model; cascade-deleted with parent `Recipe`.
+
+### ChefEngagement Semantics
+- `preparation` — hands-on but no heat: chopping, peeling, measuring, marinating.
+- `active_cooking` — requires direct attention: stirring, flipping, sautéing.
+- `passive_waiting` — unattended time: oven baking, dough rising, sauce reducing. These steps drive the multi-timer UI.
+
+## **Prisma Migrations Tracking**
+- The `apps/backend/prisma/migrations/` directory contains SQL history and **MUST ALWAYS** be tracked by Git. It must never be added to `.gitignore`.
+
+## **Turborepo Caching**
+- The `.turbo/` cache directory contains local machine state and **MUST NEVER** be committed to Git. Turborepo pipeline tasks for `typecheck` must depend on `^typecheck` to avoid infinite build loops with `tsup --watch`.
+
