@@ -149,6 +149,8 @@ pnpm dev:mobile               # expo start
 | 2026-06-09 | Turborepo included | Enforces shared→app build order automatically |
 | 2026-06-09 | Ollama native (not Docker) | Uses Apple Metal GPU for faster inference |
 | 2026-06-09 | TTS provider TBD | Abstract TTSService interface, wire provider in Step 2 |
+| 2026-06-16 | Object-based Prompt Payloads | Switched buildParsePrompt from string templates to pure JS objects to eliminate JSON syntax errors (`Bad control character`) caused by raw newlines/tabs in system instructions and text inputs. |
+
 
 ## Prisma v7 Configuration (CRITICAL)
 - **Version**: Strictly using Prisma v7+ (Architecture without Rust engine).

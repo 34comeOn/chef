@@ -4,6 +4,7 @@ import cors from 'cors';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
+import recipeRouter from './routes/recipe';
 
 const app = express();
 const PORT = process.env['PORT'] || 3001;
@@ -33,6 +34,8 @@ app.get('/health', async (_req, res) => {
     });
   }
 });
+
+app.use('/api/recipes', recipeRouter);
 
 app.listen(PORT, () => {
   console.log(`🚀 Chef Backend running on http://localhost:${PORT}`);
