@@ -3,10 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "lib": ["ES2022"],
-    "paths": {
-      "@chef/shared": ["../../packages/shared/src/index.ts"]
-    }
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*"]
 }

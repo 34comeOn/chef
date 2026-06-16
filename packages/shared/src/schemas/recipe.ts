@@ -35,7 +35,7 @@ export const AIParsedIngredientSchema = z.object({
 export const AIParsedRecipeStepSchema = z.object({
   stepNumber: z.number().int().positive(),
   instructionText: z.string().min(1),
-  subTasks: z.array(AISubTaskSchema),
+  subTasks: z.array(AISubTaskSchema).optional().default([]),
   possibleTimers: z.array(AIParsedTimerSchema),
   environment: EnvironmentalParametersSchema,
 });

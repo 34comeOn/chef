@@ -6,7 +6,12 @@ export function buildParsePrompt(rawText: string, targetLanguage: string) {
       temperature: 0.0,
       num_ctx: 2048
     },
-    system: "You are a professional culinary data extraction engine. Return ONLY a valid JSON object — no markdown, no explanation, no code fences. Analyze text and extract data into a rich structure strictly in English. Rules:\n1. Separate ingredient values strictly: '400g' -> quantity: '400', unit: 'g'. '3 stalks' -> quantity: '3', unit: 'stalks'.\n2. For each step, extract 'possibleTimers' if a duration is specified (convert minutes to durationSeconds). Use an empty array [] if no time is mentioned.\n3. Extract 'environment': heatLevel must be one of ['low', 'medium', 'high', 'none']. temperatureCelsius should be integer or null. equipmentNeeded is an array of tools used in that specific step.",
+    system: "You are a professional culinary data extraction engine. Return ONLY a valid JSON object — no markdown, no explanation, no code fences. Analyze text and extract data into a rich structure strictly in English. Rules:\n" +
+      "1. Separate ingredient values strictly: '400g' -> quantity: '400', unit: 'g'.\n" +
+      "2. CRITICAL FOR SUBSTITUTION: The 'substitution' field must ALWAYS be null unless the raw text EXPLICITLY mentions an alternative ingredient (e.g., 'butter or margarine' -> name: 'butter', substitution: 'margarine'). NEVER put text descriptions, states, or cuts like 'peeled', 'minced', 'chopped', or 'cloves' into the substitution field. If no explicit alternative is mentioned, set 'substitution' to null.\n" +
+      "3. For each step, extract 'possibleTimers' if a duration is specified (convert minutes to durationSeconds). Use an empty array [] if no time is mentioned.\n" +
+      "4. Optional: If a step contains multiple distinct actions, break them down into 'subTasks'. Otherwise, omit or leave 'subTasks' empty.\n" +
+      "5. Extract 'environment': heatLevel must be one of ['low', 'medium', 'high', 'none']. temperatureCelsius should be integer or null. equipmentNeeded is an array of tools used.",
     prompt: rawText,
     format: {
       type: "object",
@@ -33,6 +38,18 @@ export function buildParsePrompt(rawText: string, targetLanguage: string) {
             properties: {
               stepNumber: { type: "integer" },
               instructionText: { type: "string", minLength: 1 },
+              subTasks: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    description: { type: "string", minLength: 1 },
+                    activityType: { type: "string", enum: ["preparation", "active_cooking", "passive_waiting"] },
+                    relatedIngredients: { type: "array", items: { type: "string" } }
+                  },
+                  required: ["description", "activityType", "relatedIngredients"]
+                }
+              },
               possibleTimers: {
                 type: "array",
                 items: {
